@@ -1,18 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
-
+import SplashScreen from './SplashScreen';
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col selection:bg-sahel-gold/30 selection:text-sahel-navy">
+      <SplashScreen />
       <header className="fixed top-0 left-0 right-0 z-50 px-4 py-4 pointer-events-none">
         <div className="max-w-7xl mx-auto bg-white/80 backdrop-blur-md border border-white/20 shadow-sm rounded-full px-6 py-3 flex justify-between items-center pointer-events-auto transition-all hover:shadow-md hover:bg-white/90">
             {/* Logo area */}
-            <Link to="/" className="flex items-center gap-3 group">
-                <div className="w-10 h-10 bg-sahel-navy text-white rounded-full flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform shadow-lg shadow-sahel-navy/20">
-                    SA
-                </div>
-                <span className="font-display font-bold text-sahel-navy tracking-tight hidden sm:block text-lg">Sahel Analytics</span>
+            <Link to="/" className="flex items-center gap-3 group relative">
+                <img src="/Sahel-05.png" alt="Sahel Analytics" className="h-16 md:h-20 w-auto object-contain transform scale-[2] md:scale-[2.5] origin-left ml-6 group-hover:scale-[2.1] md:group-hover:scale-[2.6] transition-transform duration-300" />
             </Link>
             
             {/* Nav / CTA */}
@@ -37,11 +35,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
          <div className="container mx-auto px-4 relative z-10">
             <div className="grid md:grid-cols-4 gap-12 mb-20">
                 <div className="md:col-span-2 space-y-6">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-white text-sahel-navy rounded-full flex items-center justify-center font-bold text-sm">
-                            SA
-                        </div>
-                        <h3 className="text-2xl font-display font-bold">Sahel Analytics</h3>
+                    <div className="flex items-center gap-3 relative py-4">
+                        <img src="/Sahel-06.png" alt="Sahel Analytics" className="h-20 md:h-24 w-auto drop-shadow-md transform scale-[1.8] origin-left ml-4" />
                     </div>
                     <p className="text-slate-400 max-w-sm leading-relaxed">
                         Formation d'excellence en Business Intelligence et Analyse de Données. 

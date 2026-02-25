@@ -9,10 +9,12 @@ import LandingPage from '@/components/LandingPage';
 import RegistrationForm from '@/components/RegistrationForm';
 import SuccessPage from '@/components/SuccessPage';
 import CancelPage from '@/components/CancelPage';
+import ScrollToTop from '@/components/ScrollToTop';
 
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Layout>
         <Routes>
           <Route path="/" element={<LandingPage />} />

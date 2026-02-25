@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Button } from '@/components/ui/Button';
 import { ArrowRight, Check, BarChart2, PieChart, TrendingUp, Database } from 'lucide-react';
+import RegistrationTicker from './RegistrationTicker';
 
 export default function LandingPage() {
   return (
@@ -54,6 +55,9 @@ export default function LandingPage() {
             <div className="absolute -bottom-20 left-1/3 w-96 h-96 bg-pink-100/40 rounded-full blur-3xl mix-blend-multiply opacity-50"></div>
         </div>
       </section>
+
+      {/* Ticker / Scrolling Banner */}
+      <RegistrationTicker />
 
       {/* Bento Grid Section for Benefits */}
       <section id="programme" className="py-24 bg-white relative">

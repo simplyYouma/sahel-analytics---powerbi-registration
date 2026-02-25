@@ -1,57 +1,56 @@
 // ------------------------------------------------------------------
-// CODE COMPLET POUR GOOGLE APPS SCRIPT
+// CODE COMPLET POUR GOOGLE APPS SCRIPT (CORRIGÉ POUR FORCER LES EN-TÊTES)
 // ------------------------------------------------------------------
-// 1. Copiez ce code dans votre projet Apps Script (Extensions > Apps Script)
-// 2. Sauvegardez (Ctrl+S)
-// 3. Déployez : Bouton bleu "Déployer" > "Nouveau déploiement"
-//    - Type : Application Web
-//    - Description : v2 (ou autre)
-//    - Exécuter en tant que : Moi
-//    - Qui a accès : Tout le monde (Anyone) -> CRUCIAL !!!
-// 4. Copiez la nouvelle URL et mettez-la dans votre code/env.
 
 function doPost(e) {
-  // Verrou pour éviter les conflits si plusieurs inscriptions arrivent en même temps
   var lock = LockService.getScriptLock();
   lock.tryLock(10000);
 
   try {
-    // Sélection du classeur et de la feuille
     var doc = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = doc.getSheetByName('Inscriptions');
-    
+
     // Si la feuille 'Inscriptions' n'existe pas, on prend la première feuille
     if (!sheet) {
       sheet = doc.getSheets()[0];
+      sheet.setName('Inscriptions'); // On la renomme proprement
     }
 
-    // --- AJOUT AUTOMATIQUE DES EN-TÊTES SI LA FEUILLE EST VIDE ---
-    if (sheet.getLastRow() === 0) {
+    // --- MAGIE ICI : VÉRIFICATION INTELLIGENTE DES EN-TÊTES ---
+    // S'il n'y a rien dans la cellule A1 (ou pas le mot "Date"), c'est qu'il manque les en-têtes
+    if (sheet.getLastRow() === 0 || sheet.getRange(1, 1).getValue() !== "Date") {
       var headers = [
-        "Date", "Nom Complet", "Genre", "Age", "Téléphone", "Email", "Pays", "Ville", 
-        "Statut", "Domaine", "Organisation", "Poste", "Expérience Data", "Niveau", "Outils", 
-        "Dashboard créé ?", "Connaît DAX ?", "Enquête créée ?", "Motivation", "Attentes", "Usage prévu", 
-        "Mode Participation", "Dispo Samedis", "A un PC ?", "A Internet ?", "Prêt à installer ?", 
+        "Date", "Nom Complet", "Genre", "Age", "Téléphone", "Email", "Pays", "Ville",
+        "Statut", "Domaine", "Organisation", "Poste", "Expérience Data", "Niveau", "Outils",
+        "Dashboard créé ?", "Connaît DAX ?", "Enquête créée ?", "Motivation", "Attentes", "Usage prévu",
+        "Mode Participation", "Dispo Samedis", "A un PC ?", "A Internet ?", "Prêt à installer ?",
         "Paiement", "Veut Certificat ?", "Source", "Contact Futur ?", "GDPR", "Commentaires"
       ];
-      sheet.appendRow(headers);
+
+      if (sheet.getLastRow() > 0) {
+        // S'il y a déjà de la donnée (votre ligne sans en-tête), on insère une ligne vide au-dessus
+        sheet.insertRowBefore(1);
+        sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      } else {
+        // Si elle est totalement vide
+        sheet.appendRow(headers);
+      }
+
+      // On met en gras et on fige la première ligne
       sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold");
       sheet.setFrozenRows(1);
     }
     // -------------------------------------------------------------
 
-    // Analyse des données reçues (JSON)
     var rawData = e.postData.contents;
     var data = JSON.parse(rawData);
 
-    // Préparation de la ligne à ajouter
-    // L'ordre ici doit correspondre à l'ordre de vos colonnes dans le Sheet
     var newRow = [
       new Date(),                 // A: Date
       data.fullName,              // B: Nom Complet
       data.gender,                // C: Genre
       data.age,                   // D: Age
-      "'"+data.phone,             // E: Téléphone (avec ' pour forcer le format texte)
+      "'" + data.phone,           // E: Téléphone
       data.email,                 // F: Email
       data.country,               // G: Pays
       data.city,                  // H: Ville
@@ -81,41 +80,57 @@ function doPost(e) {
       data.comments               // AF: Commentaires
     ];
 
-    // Ajout de la ligne à la fin du tableau
     sheet.appendRow(newRow);
 
-    // Retourne un succès (JSON)
     return ContentService
       .createTextOutput(JSON.stringify({ 'result': 'success', 'row': sheet.getLastRow() }))
       .setMimeType(ContentService.MimeType.JSON);
 
   } catch (e) {
-    // En cas d'erreur, on la retourne
     return ContentService
       .createTextOutput(JSON.stringify({ 'result': 'error', 'error': e.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
   } finally {
-    // Libération du verrou
     lock.releaseLock();
   }
 }
 
-// Fonction utilitaire pour configurer les en-têtes automatiquement (à lancer une fois manuellement)
-function setupHeaders() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Inscriptions');
-  if (!sheet) {
-    sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet('Inscriptions');
+// ------------------------------------------------------------------
+// NOUVEAU : FONCTION POUR RÉCUPÉRER LES DERNIERS INSCRITS (TICKER)
+// ------------------------------------------------------------------
+function doGet(e) {
+  try {
+    var doc = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = doc.getSheetByName('Inscriptions') || doc.getSheets()[0];
+
+    var lastRow = sheet.getLastRow();
+
+    // Si la feuille n'a que les en-têtes (ou est vide), retourner une liste vide
+    if (lastRow <= 1) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ 'names': [] }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Récupérer les 20 dernières lignes (ou moins s'il y en a moins de 20)
+    var startRow = Math.max(2, lastRow - 19);
+    var numRows = lastRow - startRow + 1;
+
+    // On suppose que le "Nom Complet" est dans la colonne B (colonne 2)
+    var data = sheet.getRange(startRow, 2, numRows, 1).getValues();
+
+    // Extraire juste le texte ("F. Youm", etc.)
+    var names = data.map(function (row) { return row[0]; }).filter(function (name) { return name !== ""; });
+
+    // Pour des raisons de sécurité liées au CORS avec fetch(),
+    // il est essentiel de retourner du texte formaté en JSONP ou JSON simple
+    return ContentService
+      .createTextOutput(JSON.stringify({ 'names': names.reverse() })) // Renverser pour avoir le plus récent en premier
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ 'error': err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
-  
-  var headers = [
-    "Date", "Nom Complet", "Genre", "Age", "Téléphone", "Email", "Pays", "Ville", 
-    "Statut", "Domaine", "Organisation", "Poste", "Expérience Data", "Niveau", "Outils", 
-    "Dashboard créé ?", "Connaît DAX ?", "Enquête créée ?", "Motivation", "Attentes", "Usage prévu", 
-    "Mode Participation", "Dispo Samedis", "A un PC ?", "A Internet ?", "Prêt à installer ?", 
-    "Paiement", "Veut Certificat ?", "Source", "Contact Futur ?", "GDPR", "Commentaires"
-  ];
-  
-  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-  sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold");
-  sheet.setFrozenRows(1);
 }
