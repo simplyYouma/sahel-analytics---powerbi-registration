@@ -188,8 +188,8 @@ export default function LandingPage() {
                             </div>
                             <div>
                                 <h4 className="font-bold text-sahel-navy">Lieu</h4>
-                                <p className="text-slate-600">FALADIE à côté de l'INPS</p>
-                                <p className="text-slate-500 text-sm">(Bamako, Mali)</p>
+                                <p className="text-slate-600">Sahel Analytics, Faladié</p>
+                                <p className="text-slate-500 text-sm">(à proximité immédiate de l’INPS)</p>
                             </div>
                         </div>
                     </div>
@@ -213,7 +213,7 @@ export default function LandingPage() {
                             <div>
                                 <h4 className="font-bold text-sahel-navy">Contacts</h4>
                                 <p className="text-slate-600">+223 83 77 83 03</p>
-                                <p className="text-slate-600">+223 75 77 36 29</p>
+                                <p className="text-slate-600">+223 79 27 25 98</p>
                             </div>
                         </div>
                     </div>

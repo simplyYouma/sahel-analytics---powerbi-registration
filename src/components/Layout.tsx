@@ -54,9 +54,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <div>
                     <h4 className="font-bold mb-6 text-sahel-gold tracking-wide text-sm uppercase">Contact</h4>
                     <ul className="space-y-4 text-slate-400 text-sm">
-                        <li>FALADIE à côté de l'INPS, Bamako</li>
+                        <li>Sahel Analytics, Faladié (à proximité immédiate de l’INPS)</li>
                         <li>+223 83 77 83 03</li>
-                        <li>+223 75 77 36 29</li>
+                        <li>+223 79 27 25 98</li>
                         <li>
                             <a href="https://sahel-analytics.com/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-2 group">
                                 <span className="w-1 h-1 bg-sahel-gold rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
